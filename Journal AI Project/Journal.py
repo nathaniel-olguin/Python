@@ -19,26 +19,36 @@ def space():
 
 #VARIABLES
 date = datetime.now()
-formatted_date = date.strftime('%m-%d-%Y  -  %A %I.%M.%S %p')    #including the '%S' is important as with each passing second the file name changes and therefore if the user enters multiple 'journal entries' in quick succession multiple files will be created for the same day (I may need to update this with the 'a', append, in the future to avoid creating a massive amount of files
-#need to create a new date format for the 'a', append, feature to avoid spam
+specific_time = date.strftime('%m-%d-%Y  -  %A, %I.%M.%S %p')    #specific datetime for entries within the file
+simple_date = date.strftime('%m-%d-%Y')    #for the file name
+initial_directory = os.getcwd()    #reference
 
 
 #STEP 1  |  user input
 try:
     daily_entry = input()
-except EOFError:    #enter with nothing
+except EOFError:    #catches when nothing is entered
     daily_entry = ''
-finally:
-    print(formatted_sdate)
+finally:    #preview of what will be added to the .md file
+    print(specific_time)
     space()
     print(daily_entry)
     space()
 
     
 
-#STEP 2  |  creating an 'entry file'
-initial_directory = os.getcwd()
-print(initial_directory)    #for reference
+#STEP 2  |  creating an 'entry file' or adding onto an existing file for the same day
+if f'Daily Journal  -  {simple_date}.md' in initial_directory:
+    with open(f'Daily Journal  -  {simple_date}.md', 'a') as entry:
+        entry.write(f'\n \n#{specific_time} \n \n    {daily_entry} TEST')
+else:
+    with open(f'Daily Journal  -  {simple_date}.md', 'a') as entry:    #currently need to fix the 'a' and \n \n at the beginning since currently the initial directory is causeing issues with this if-else block
+        entry.write(f'\n \n#{specific_time} \n \n    {daily_entry}')
+        
 
-with open(f'Daily Journal  -  {formatted_date}.md', 'w') as entry:
-    entry.write(f'#{formatted_date} \n \n{daily_entry}')
+#STEP 3  |  OS module: Creating the directories:  'Reports' & 'Data'
+os.makedirs('Reports', exist_ok=True)    #Analysis.py will handle this directory (I might move this line of code into Analysis.py once i start working on that file)
+os.makedirs('Data', exist_ok=True)    #This is where the journal entries will be moved too
+
+
+#STEP 4  |  SHUTIL module: Moving the entries into the 'Data' directory
